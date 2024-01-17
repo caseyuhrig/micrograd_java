@@ -95,7 +95,7 @@ public class Value {
     };
 
     /**
-     * Only created the private constructor because of an IDE bug.
+     * Only created the private constructor because of an IntelliJ IDE bug.
      * <a href="https://youtrack.jetbrains.com/issue/IDEA-339606">IDEA-339606</a>
      */
     private Value() {
@@ -139,19 +139,7 @@ public class Value {
     }
 
     public Value neg() {
-        return this.mul(new Value(-1.0, "(-1)", new ArrayList<>() {{
-            //add(Value.this);
-        }}
-        ));
-        /*
-        final var out = new Value(-data, "-", new ArrayList<>() {{
-            add(Value.this);
-        }});
-        out._backward = () -> {
-            grad += -out.grad;
-        };
-        return out;
-        */
+        return this.mul(new Value(-1.0, "(-1)", new ArrayList<>()));
     }
 
     public Value mul(final Value other) {
@@ -208,8 +196,6 @@ public class Value {
     }
 
     public ArrayList<Value> order() {
-        //final var visited = new ArrayList<Value>();
-        //final var order = new ArrayList<Value>();
         visited.clear();
         topo.clear();
         build_topo(this);
@@ -231,8 +217,6 @@ public class Value {
 
 
     public String toString() {
-        //return label + ": Value(data=" + data + ", grad=" + grad + ", children.size=" + children.size() + ", op=" + op + ")";
-        //return String.format("%s: Value(data=%.4f, grad=%.4f, children.size=%d, op=%s)", label, data, grad, children.size(), op);
         return String.format("%s: Value(data=%.4f, grad=%.4f, %d)", label, data, grad, children.size());
     }
 

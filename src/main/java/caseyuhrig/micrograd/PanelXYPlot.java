@@ -14,9 +14,7 @@ public class PanelXYPlot extends JPanel {
     private final ArrayList<Point2D.Double> points = new ArrayList<>();
 
     public void add(final double x, final double y) {
-        //System.out.println("plot(" + x + ", " + y + ")");
         points.add(new Point2D.Double(x, y));
-        //this.font = new Font("Cario", Font.PLAIN, 12);
     }
 
     @Override
@@ -170,6 +168,8 @@ public class PanelXYPlot extends JPanel {
         g.fillRect(0, 0, getWidth(), getHeight());
     }
 
+    final static Stroke dashedStroke = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0);
+
     private void paintBackground(final Graphics2D g) {
         g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
         // Draw a grid with dashed lines like graph paper
@@ -179,22 +179,21 @@ public class PanelXYPlot extends JPanel {
         final var cellHeight = 100;
         final var rows = height / cellHeight + 1;
         final var columns = width / cellWidth + 1;
+        g.setColor(getBackgroundColor());
+        //g.fill(rectangle);
+        g.fillRect(0,0,width, height);
+        g.setColor(getLineColor());
+        g.setStroke(dashedStroke);
         for (var i = 0; i < rows; i++) {
             final var y = i * cellHeight;
             for (var j = 0; j < columns; j++) {
                 final var x = j * cellWidth;
                 final var rectangle = new Rectangle(x, y, cellWidth, cellHeight);
-                //g.setColor(Color.WHITE);
-                g.setColor(getBackgroundColor());
-                //g.setColor(new Color(0, 51, 153, 255));
-                g.fill(rectangle);
-                //g.setColor(Color.WHITE);
-                //g.setColor(new Color(255, 255, 255, 32));
-                g.setColor(getLineColor());
-                //g.setColor(new Color(15, 51, 255, 255));
-                //g.setColor(new Color(0, 0, 0, 64));
+                //g.setColor(getBackgroundColor());
+                //g.fill(rectangle);
+                //g.setColor(getLineColor());
                 // set the line style to dashed
-                g.setStroke(new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[]{9}, 0));
+                //g.setStroke(dashedStroke);
                 g.draw(rectangle);
             }
         }

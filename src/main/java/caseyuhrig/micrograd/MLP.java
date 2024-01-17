@@ -1,8 +1,6 @@
 package caseyuhrig.micrograd;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.stream.IntStream;
 
 /**
  * <h2>Multilayer Perceptron in Java example.</h2>
@@ -21,6 +19,49 @@ import java.util.stream.IntStream;
 public class MLP {
 
     public double train(ArrayList<ArrayList<Value>> xs, ArrayList<Value> ys, final int epochs) {
+
+        final FrameChart chart = new FrameChart();
+        chart.center();
+        chart.setVisible(true);
+
+        // Create new MLP with 2 inputs, 2 hidden layers with 4 neurons each, and 1 output
+        //final var m = new MLP(3, new int[]{5, 4, 1});
+        //final var m = new MLP(3, new int[]{4, 4, 1});
+        //final var m = new MLP(2, new int[]{40, 40, 30, 40, 1});
+
+        double saveLoss = Double.MAX_VALUE;
+        long saveEpoch = 0;
+        double endLoss = 0.0;
+
+        for (long epoch = 0; epoch < epochs; epoch++) {
+            final var ypred = new ArrayList<Value>();
+            for (var i = 0; i < xs.size(); i++) {
+                final var yp = call(xs.get(i));
+                ypred.add(yp.getFirst());
+            }
+
+            var totalLoss = new Value(0.0);
+            for (var i = 0; i < xs.size(); i++) {
+                final var yp = ypred.get(i);
+                final var yt = ys.get(i);
+                final var loss = yp.sub(yt).pow(2);
+                totalLoss = totalLoss.add(loss);
+            }
+
+            chart.add(epoch, totalLoss.data);
+
+            // IMPORTANT: zero the gradients!
+            zeroGradients();
+            // (re)compute the gradients
+            totalLoss.backward();
+            endLoss = totalLoss.data;
+
+            updateParameters(0.02);
+        }
+        return endLoss;
+    }
+
+    public double trainOld(ArrayList<ArrayList<Value>> xs, ArrayList<Value> ys, final int epochs) {
 
         final FrameChart chart = new FrameChart();
         chart.center();
@@ -48,18 +89,8 @@ public class MLP {
                 final var yt = ys.get(i);
                 final var loss = yp.sub(yt).pow(2);
                 totalLoss = totalLoss.add(loss);
-                //System.out.printf("%d:\t%f\t%f\t%f\n", i, yp.data, loss.data, yt.data);
             }
 
-            /*
-            final var truncatedLoss = truncate(6, totalLoss.data);
-            if (truncatedLoss != saveLoss) {
-                if (truncatedLoss > 0.01) chart.add(epoch, truncatedLoss);
-                saveLoss = truncatedLoss;
-                saveEpoch = epoch;
-            }
-
-             */
             chart.add(epoch, totalLoss.data);
 
             // IMPORTANT: zero the gradients!
@@ -73,23 +104,11 @@ public class MLP {
         return endLoss;
     }
 
-    private static double truncate(final double precision, double value) {
-        final double factor = Math.pow(10, precision);
-        value = value * factor;
-        value = Math.floor(value);
-        return value / factor;
-    }
-
 
     public ArrayList<Layer> layers = new ArrayList<>();
 
-
-    private MLP() {
-    }
-
     public MLP(final int nin, final int[] nouts) {
-        super();
-        final var sz = cat(nin, nouts);
+        final var sz = Utils.cat(nin, nouts);
         for (var i = 0; i < nouts.length; i++) {
             layers.add(new Layer(sz[i], sz[i + 1]));
         }
@@ -115,28 +134,17 @@ public class MLP {
         }
     }
 
-    public ArrayList<Value> call(ArrayList<Value> x) {
-        final var results = new ArrayList<Value>();
-        for (var i = 0; i < layers.size(); i++) {
-            //System.out.println("LAYER " + i);
-            final var layer = layers.get(i);
-            x = layer.call(x);
-            //x = results.stream().mapToDouble(v -> v.data).toArray();
+    /**
+     * Call executes the forward pass of the network.
+     * @param x The input data.
+     * @return
+     */
+    public ArrayList<Value> call(final ArrayList<Value> x) {
+        var results = new ArrayList<>(x);
+        for (final Layer layer : layers) {
+            // pass the output of one layer to the next layers input
+            results = layer.call(results);
         }
-        return x; //results;
-    }
-
-    public static int[] cat(final int valueToPrepend, final int[] originalArray) {
-        return IntStream.concat(IntStream.of(valueToPrepend), Arrays.stream(originalArray)).toArray();
-    }
-
-    public static int[] catOld(final int valueToPrepend, final int[] originalArray) {
-        // Create a new array with one more element than the original
-        final int[] newArray = new int[originalArray.length + 1];
-        // Set the first element of the new array as the value to prepend
-        newArray[0] = valueToPrepend;
-        // Copy the original array elements to the new array, starting from the second position
-        System.arraycopy(originalArray, 0, newArray, 1, originalArray.length);
-        return newArray;
+        return results;
     }
 }

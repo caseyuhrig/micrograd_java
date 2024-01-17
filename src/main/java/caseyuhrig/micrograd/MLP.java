@@ -24,19 +24,12 @@ public class MLP {
         chart.center();
         chart.setVisible(true);
 
-        // Create new MLP with 2 inputs, 2 hidden layers with 4 neurons each, and 1 output
-        //final var m = new MLP(3, new int[]{5, 4, 1});
-        //final var m = new MLP(3, new int[]{4, 4, 1});
-        //final var m = new MLP(2, new int[]{40, 40, 30, 40, 1});
-
-        double saveLoss = Double.MAX_VALUE;
-        long saveEpoch = 0;
         double endLoss = 0.0;
 
         for (long epoch = 0; epoch < epochs; epoch++) {
             final var ypred = new ArrayList<Value>();
-            for (var i = 0; i < xs.size(); i++) {
-                final var yp = call(xs.get(i));
+            for (ArrayList<Value> x : xs) {
+                final var yp = call(x);
                 ypred.add(yp.getFirst());
             }
 
@@ -60,50 +53,6 @@ public class MLP {
         }
         return endLoss;
     }
-
-    public double trainOld(ArrayList<ArrayList<Value>> xs, ArrayList<Value> ys, final int epochs) {
-
-        final FrameChart chart = new FrameChart();
-        chart.center();
-        chart.setVisible(true);
-
-        // Create new MLP with 2 inputs, 2 hidden layers with 4 neurons each, and 1 output
-        //final var m = new MLP(3, new int[]{5, 4, 1});
-        final var m = new MLP(3, new int[]{4, 4, 1});
-        //final var m = new MLP(2, new int[]{40, 40, 30, 40, 1});
-
-        double saveLoss = Double.MAX_VALUE;
-        long saveEpoch = 0;
-        double endLoss = 0.0;
-
-        for (long epoch = 0; epoch < epochs; epoch++) {
-            final var ypred = new ArrayList<Value>();
-            for (var i = 0; i < xs.size(); i++) {
-                final var yp = m.call(xs.get(i));
-                ypred.add(yp.getFirst());
-            }
-
-            var totalLoss = new Value(0.0);
-            for (var i = 0; i < xs.size(); i++) {
-                final var yp = ypred.get(i);
-                final var yt = ys.get(i);
-                final var loss = yp.sub(yt).pow(2);
-                totalLoss = totalLoss.add(loss);
-            }
-
-            chart.add(epoch, totalLoss.data);
-
-            // IMPORTANT: zero the gradients!
-            m.zeroGradients();
-            // (re)compute the gradients
-            totalLoss.backward();
-            endLoss = totalLoss.data;
-
-            m.updateParameters(0.02);
-        }
-        return endLoss;
-    }
-
 
     public ArrayList<Layer> layers = new ArrayList<>();
 
@@ -137,7 +86,7 @@ public class MLP {
     /**
      * Call executes the forward pass of the network.
      * @param x The input data.
-     * @return
+     * @return The output results from processing all the neurons.
      */
     public ArrayList<Value> call(final ArrayList<Value> x) {
         var results = new ArrayList<>(x);

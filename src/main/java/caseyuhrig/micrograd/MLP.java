@@ -18,17 +18,21 @@ import java.util.ArrayList;
  */
 public class MLP {
 
-    public double train(ArrayList<ArrayList<Value>> xs, ArrayList<Value> ys, final int epochs) {
+    public double train(final ArrayList<ArrayList<Value>> xs, final ArrayList<Value> ys, final int epochs) {
 
         final FrameChart chart = new FrameChart();
         chart.center();
         chart.setVisible(true);
 
+        final FrameDot dot = new FrameDot();
+        dot.center();
+        dot.setVisible(true);
+
         double endLoss = 0.0;
 
         for (long epoch = 0; epoch < epochs; epoch++) {
             final var ypred = new ArrayList<Value>();
-            for (ArrayList<Value> x : xs) {
+            for (final ArrayList<Value> x : xs) {
                 final var yp = call(x);
                 ypred.add(yp.getFirst());
             }
@@ -50,7 +54,10 @@ public class MLP {
             endLoss = totalLoss.data;
 
             updateParameters(0.02);
+
+            dot.setValue(totalLoss);
         }
+
         return endLoss;
     }
 
@@ -85,6 +92,7 @@ public class MLP {
 
     /**
      * Call executes the forward pass of the network.
+     *
      * @param x The input data.
      * @return The output results from processing all the neurons.
      */

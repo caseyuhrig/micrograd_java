@@ -2,14 +2,24 @@ package caseyuhrig.micrograd;
 
 
 import java.util.ArrayList;
+import java.util.UUID;
 
 /**
- * AutoGrad in Java example.
+ * MicroGrad in Java example.
  * derivatives by backpropagation
+ *
+ * @see <a href="https://github.com/karpathy/micrograd/blob/master/micrograd/engine.py">micrograd/engine.py</a>
  */
 public class Value {
 
     public static void main(final String[] args) {
+        demo0();
+        //demo1();
+        //demo2();
+        //demo3();
+    }
+
+    public static void demo0() {
         System.out.println("Hello, ML!");
 
         // inputs x1,x2
@@ -19,7 +29,7 @@ public class Value {
         final var w1 = new Value(-3.0, "w1");
         final var w2 = new Value(1.0, "w2");
         // bias of the neuron
-        final var b = new Value(6.8813735870195432, "b"); //6.8813735870195432, "b");
+        final var b = new Value(6.8813735870195432, "b");
         // x1*w1 + x2*w2 + b
         final var x1w1 = x1.mul(w1);
         x1w1.label = "x1*w1";
@@ -44,9 +54,7 @@ public class Value {
         o.backward();
         o.dump();
 
-        //demo1();
-        //demo2();
-        //demo3();
+
     }
 
 
@@ -62,7 +70,6 @@ public class Value {
         final var L = d.mul(f);
         L.label = "L";
         L.backward();
-
         L.dump();
     }
 
@@ -83,6 +90,7 @@ public class Value {
         o.dump();
     }
 
+    public final UUID id = UUID.randomUUID();
     public double data;
     public double grad = 0.0;
     public final ArrayList<Value> children;

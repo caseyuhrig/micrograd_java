@@ -83,12 +83,12 @@ public class Value {
         o.dump();
     }
 
-    public double data = 0.0;
+    public double data;
     public double grad = 0.0;
     public final ArrayList<Value> children;
     private final ArrayList<Value> _prev = new ArrayList<>();
 
-    public String label = "n/a";
+    public String label;
     public final String op;
 
     private Runnable _backward = () -> {

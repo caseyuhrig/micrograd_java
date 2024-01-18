@@ -189,6 +189,16 @@ public class Value {
         return out;
     }
 
+    public Value relu() {
+        final var out = new Value(Math.max(0, data), "relu", new ArrayList<>() {{
+            add(Value.this);
+        }});
+        out._backward = () -> {
+            grad += (data > 0) ? out.grad : 0;
+        };
+        return out;
+    }
+
     public void backward() {
         grad = 1.0;
         order().reversed().forEach(v -> v._backward.run());
